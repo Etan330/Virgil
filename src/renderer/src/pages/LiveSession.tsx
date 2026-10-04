@@ -24,9 +24,11 @@ function stateTag(card: CopilotCard) {
     const label =
       card.resolve_reason === 'user_asked'
         ? '已处理 · 你已问出'
-        : card.resolve_reason === 'answered_by_counterpart'
-          ? '已处理 · 对方已回答'
-          : '已处理';
+        : card.resolve_reason === 'user_replied'
+          ? '已处理 · 你已回应'
+          : card.resolve_reason === 'answered_by_counterpart'
+            ? '已处理 · 对方已回答'
+            : '已处理';
     return <span className="tag confirmed">✓ {label}</span>;
   }
   if (card.state === 'dismissed') {

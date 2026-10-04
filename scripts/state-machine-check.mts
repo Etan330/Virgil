@@ -242,6 +242,7 @@ const evidenceAccess = evidenceController as unknown as {
 evidenceAccess.segments = [{ idx: 42, text: '这个需求由王莉负责。', speaker: 'TA', start_ms: 0, end_ms: 1000, definitive: true }];
 appendSegments(evidenceSession, evidenceAccess.segments);
 evidenceAccess.cards = [{ id: 'owner', type: 'need_to_ask', title: '确认负责人', context: '', suggested_text: '谁负责这个需求？', state: 'pending', created_at: new Date().toISOString(), resolved_at: null }];
+evidenceAccess.cards.push({ id: 'already-asked', type: 'need_to_ask', title: '确认日期', context: '', suggested_text: '哪天上线？', state: 'confirmed', created_at: new Date().toISOString(), resolved_at: new Date().toISOString(), resolve_reason: 'user_asked' });
 const capturedInputs: AiInput[] = [];
 evidenceAccess.ai = { analyze: async (input) => {
   capturedInputs.push(input);
@@ -249,6 +250,7 @@ evidenceAccess.ai = { analyze: async (input) => {
 } };
 await evidenceAccess.runAnalyze();
 ok('真实编排向模型传入语句索引和说话人', capturedInputs[0]?.contextSegments?.[0]?.idx === 42 && capturedInputs[0]?.contextSegments?.[0]?.speaker === 'TA');
+ok('真实编排传入已处理卡片且保留问过的区别', capturedInputs[0]?.recentCards?.[0]?.id === 'already-asked' && capturedInputs[0]?.recentCards?.[0]?.resolve_reason === 'user_asked');
 const evidenceRecord = JSON.parse(readFileSync(join(SESSIONS, evidenceSession, 'session.json'), 'utf8'));
 ok('确认依据索引随卡片持久化', evidenceRecord.cards?.[0]?.resolve_segment_idx === 42);
 const evidenceHistory = loadSession(evidenceSession);

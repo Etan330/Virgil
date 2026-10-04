@@ -6,6 +6,7 @@ export type CardState = 'pending' | 'confirmed' | 'dismissed';
 
 export type ResolveReason =
   | 'user_asked'
+  | 'user_replied'
   | 'answered_by_counterpart'
   | 'expired'
   | 'user_dismissed';

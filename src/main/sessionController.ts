@@ -376,6 +376,7 @@ export class SessionController {
         contextSegments: this.transcriptContext(),
         summarySoFar: this.summary,
         pendingCards: this.cards.filter((c) => c.state === 'pending'),
+        recentCards: this.cards.filter((c) => c.state !== 'pending').slice(-12).map(({ id, type, title, suggested_text, state, resolve_reason }) => ({ id, type, title, suggested_text, state, resolve_reason })),
       });
 
       if (output.summary.length > 0) this.summary = output.summary;

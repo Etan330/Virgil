@@ -31,7 +31,7 @@ export interface DemoLine {
   /** Titles of pending cards that this line should flip to Confirmed. */
   resolves?: Array<{
     title: string;
-    reason: 'user_asked' | 'answered_by_counterpart' | 'expired';
+    reason: 'user_asked' | 'user_replied' | 'answered_by_counterpart' | 'expired';
   }>;
 }
 
@@ -55,7 +55,7 @@ export const DEMO_SCRIPT: DemoLine[] = [
         type: 'suggested_reply',
         title: '接住活动需求',
         context: '对方刚抛出需求并强调老板拍板，先接住需求再谈细节，推进更顺。',
-        suggested_text: '方向没问题，我先把形式和范围理清楚，今天给大家答复。',
+        suggested_text: '咱们先把奖励形式和一期范围聊具体一点。',
       },
     ],
   },
@@ -112,17 +112,19 @@ export const DEMO_SCRIPT: DemoLine[] = [
       '【要点】设计陈默：常规视觉两版可选',
     ],
     pauseMs: 5400,
-    resolves: [{ title: '确认海报是否进一期', reason: 'answered_by_counterpart' }],
   },
   {
     speaker: 'TA',
-    text: '后端我问过了啊，优惠券那套系统直接就能挂邀请奖励，积分不用新做，钱走市场预算，这块他们没意见。',
+    text: '同意，海报放二期，一期就邀请页。后端我问过了啊，优惠券那套系统直接就能挂邀请奖励，积分不用新做，钱走市场预算，这块他们没意见。',
     summary: [
       '【结论】一期范围：仅邀请页，视觉复用分享卡片模板；邀请海报放二期',
       '【结论】奖励直接发优惠券，复用现有系统，费用走市场预算',
     ],
     pauseMs: 5000,
-    resolves: [{ title: '确认预算走哪边', reason: 'answered_by_counterpart' }],
+    resolves: [
+      { title: '确认海报是否进一期', reason: 'answered_by_counterpart' },
+      { title: '确认预算走哪边', reason: 'answered_by_counterpart' },
+    ],
   },
   {
     speaker: '我',
@@ -165,22 +167,22 @@ export const DEMO_SCRIPT: DemoLine[] = [
       {
         type: 'suggested_reply',
         title: '回应设计排期',
-        context: '对方刚给出交付承诺，先应下来并给出你的反馈节奏，推进更顺。',
-        suggested_text: '行，稿子我周四收，看完当天就把意见给你们。',
+        context: '对方给出了交稿时间，下一步需要明确如何收集和确认反馈。',
+        suggested_text: '稿子出来后，我们怎么收集和确认反馈？',
       },
     ],
   },
   {
     speaker: '我',
-    text: '可以，稿子我来盯，周四拿到当天就返意见。那我下午拉一下研发测试，明天排期表发群里。哦还有个事我得提一嘴：优惠券发放的额度，最好让财务提前看一眼，别到时候卡在钱上。',
+    text: '可以，稿子出来后咱们按什么流程收意见？我下午先同步一下研发测试，等排期确认再发群里。哦还有个事我得提一嘴：优惠券发放的额度，最好让财务提前看一眼，别到时候卡在钱上。',
     summary: [
       '【结论】一期范围：仅邀请页，视觉复用分享卡片模板；邀请海报放二期',
       '【结论】奖励直接发优惠券，费用走市场预算；目标 5000 新用户',
-      '【待办】陈默周四交设计稿；我当天反馈；今天同步研发测试，明天出排期',
+      '【待办】陈默周四交设计稿；我今天同步研发测试，排期确认后发群里；稿后反馈流程待确认',
       '【风险】优惠券发放额度需财务确认',
     ],
     pauseMs: 5000,
-    resolves: [{ title: '回应设计排期', reason: 'answered_by_counterpart' }],
+    resolves: [{ title: '回应设计排期', reason: 'user_replied' }],
   },
   {
     speaker: 'TA',

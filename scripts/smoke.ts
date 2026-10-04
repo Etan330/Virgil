@@ -151,7 +151,7 @@ check('summary updated', third.summary.length > 0);
 console.log('\n[7] real AI parser rejects incomplete or unsupported card resolutions');
 const originalFetch = globalThis.fetch;
 try {
-  const cases = [
+  const cases: Array<{ name: string; raw: Record<string, unknown>; accepted: boolean; cardType?: CopilotCard['type'] }> = [
     { name: 'missing state and reason stay pending', raw: { card_id: 'card-0' }, accepted: false },
     { name: 'unknown state stays pending', raw: { card_id: 'card-0', state: 'maybe', reason: 'user_asked' }, accepted: false },
     { name: 'unknown reason stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'unclear' }, accepted: false },
@@ -164,6 +164,11 @@ try {
     { name: 'string evidence identifier stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: '0' }, accepted: false },
     { name: 'explicit user question is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: 0 }, accepted: true },
     { name: 'explicit counterpart answer is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart', evidence_segment_idx: 0 }, accepted: true },
+    { name: 'explicit user reply is accepted for a reply card', cardType: 'suggested_reply', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_replied', evidence_segment_idx: 4 }, accepted: true },
+    { name: 'counterpart cannot confirm a user reply card', cardType: 'suggested_reply', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_replied', evidence_segment_idx: 5 }, accepted: false },
+    { name: 'counterpart answer cannot resolve a reply card', cardType: 'suggested_reply', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart', evidence_segment_idx: 5 }, accepted: false },
+    { name: 'user question cannot resolve a reply card', cardType: 'suggested_reply', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: 0 }, accepted: false },
+    { name: 'user reply cannot resolve a question card', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_replied', evidence_segment_idx: 4 }, accepted: false },
   ];
   for (const test of cases) {
     globalThis.fetch = async () => new Response(JSON.stringify({
@@ -175,12 +180,34 @@ try {
       { idx: 1, speaker: null, text: '[TA] 这个需求由王莉负责。' },
       { idx: 2, speaker: '我', text: '谁负责这个需求？' },
       { idx: 3, speaker: 'TA', text: '谁负责这个需求？' },
+      { idx: 4, speaker: '我', text: '我先核对剩余工时，再回复你是否接。' },
+      { idx: 5, speaker: 'TA', text: '我先核对剩余工时，再回复你是否接。' },
     ];
-    const result = await service.analyze({ transcriptTail: '[我] 谁负责这个需求？', contextSegments, summarySoFar: [], pendingCards: pending });
+    const testCards = pending.map((card) => card.id === 'card-0' && test.cardType ? { ...card, type: test.cardType } : card);
+    const result = await service.analyze({ transcriptTail: '[我] 谁负责这个需求？', contextSegments, summarySoFar: [], pendingCards: testCards });
     check(test.name, result.resolutions.length === (test.accepted ? 1 : 0));
   }
+
+  let outbound = '';
+  globalThis.fetch = async (_url, init) => {
+    outbound = String(init?.body);
+    return new Response(JSON.stringify({ choices: [{ message: { content: '{"summary":[],"new_cards":[],"resolutions":[]}' } }] }), { status: 200 });
+  };
+  const historyInput = { transcriptTail: '[TA] 现在确认验收。', contextSegments: [{ idx: 50, speaker: 'TA', text: '现在确认验收。' }], summarySoFar: ['【待办】王莉负责，下周五上线'], pendingCards: [] };
+  Object.assign(historyInput, { recentCards: [{ id: 'old-owner', type: 'need_to_ask', title: '确认负责人', suggested_text: '谁负责？', state: 'confirmed', resolve_reason: 'user_asked' }] });
+  await new DeepSeekAiService('test-placeholder', 'test-model', 'https://test.invalid').analyze(historyInput);
+  const userPrompt = JSON.parse(outbound).messages.find((message: { role: string }) => message.role === 'user')?.content ?? '';
+  check('earlier summary reaches the real model request', userPrompt.includes('王莉负责，下周五上线'));
+  check('handled card context reaches the real model request', userPrompt.includes('old-owner') && userPrompt.includes('user_asked'));
 } finally {
   globalThis.fetch = originalFetch;
+}
+
+console.log('\n[8] scripted demo resolution roles match the displayed conversation');
+for (const line of DEMO_SCRIPT) {
+  for (const resolution of line.resolves ?? []) {
+    check(`demo resolution role: ${resolution.title}`, resolution.reason === 'answered_by_counterpart' ? line.speaker !== '我' : line.speaker === '我');
+  }
 }
 
 console.log(failures === 0 ? '\nALL SMOKE CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
