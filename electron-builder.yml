@@ -1,0 +1,33 @@
+# 与 package.json 的 "build" 字段保持一致，避免两份配置互相矛盾。
+# 真正产出 release/Virgil.app + dmg 的是 scripts/package-mac.sh；这个文件只是
+# 给直接使用 electron-builder 的场景兜底，所以内容必须与 package.json 同步。
+appId: cn.virgil.copilot
+productName: Virgil
+copyright: Copyright © 2026 Virgil
+directories:
+  output: release
+files:
+  - out/**
+  - package.json
+  - "!vendor/**"
+  - "!docs/**"
+  - "!scripts/**"
+  - "!assets/**"
+  - "!release/**"
+extraResources:
+  - from: vendor/asr
+    to: vendor/asr
+mac:
+  target:
+    - dmg
+  icon: assets/icon.icns
+  category: public.app-category.productivity
+  darkModeSupport: true
+  identity: null
+  extendInfo:
+    NSMicrophoneUsageDescription: Virgil 需要使用麦克风来实时转录对话内容。
+    NSAppleEventsUsageDescription: Virgil 需要录制当前对话以生成实时总结
+dmg:
+  window:
+    width: 540
+    height: 380

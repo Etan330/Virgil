@@ -1,0 +1,20 @@
+node_modules/
+out/
+dist/
+release/
+.package-stage/
+*.log
+.DS_Store
+node_modules/.cache/
+vendor/asr/
+assets/icon.iconset/
+electron.vite.config.*.mjs
+
+# Local credentials, conversation data, and agent notes
+.env
+.env.*
+!.env.example
+.workbuddy/
+sessions/
+settings.json
+voiceprint.json

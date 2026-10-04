@@ -1,0 +1,71 @@
+{
+  "name": "virgil",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Virgil - real-time conversation copilot for macOS",
+  "main": "./out/main/index.js",
+  "build": {
+    "appId": "cn.virgil.copilot",
+    "productName": "Virgil",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**",
+      "package.json",
+      "!vendor/**",
+      "!docs/**",
+      "!scripts/**",
+      "!assets/**",
+      "!release/**"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/asr",
+        "to": "vendor/asr"
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.icns",
+      "identity": null,
+      "category": "public.app-category.productivity",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Virgil 需要使用麦克风来实时转录对话内容。"
+      }
+    }
+  },
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "smoke": "esbuild scripts/smoke.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/virgil-smoke.mjs --log-level=error && node node_modules/.cache/virgil-smoke.mjs",
+    "setup:asr": "bash scripts/setup-asr.sh",
+    "check:state": "esbuild scripts/state-machine-check.mts --bundle --platform=node --format=esm --target=node22 --alias:electron=./scripts/electron-stub.mjs --banner:js=\"import{createRequire as __cr}from 'module';const require=__cr(import.meta.url);\" --outfile=node_modules/.cache/virgil-state.mjs --log-level=error && node node_modules/.cache/virgil-state.mjs",
+    "dist": "echo 打包请用：bash scripts/package-mac.sh",
+    "dist:dmg": "echo 打包请用：bash scripts/package-mac.sh"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sherpa-onnx-node": "^1.13.8",
+    "ws": "^8.18.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@electron/asar": "^3.4.1",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/ws": "^8.5.13",
+    "@vitejs/plugin-react": "^4.3.3",
+    "electron": "latest",
+    "electron-builder": "latest",
+    "electron-vite": "latest",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}
