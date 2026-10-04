@@ -21,7 +21,7 @@ alignment: scope, owners, deadlines, budgets, and acceptance criteria.
 - **Data:** recordings and history are stored on your Mac. Live audio is sent to
   Volcengine, and transcript context is sent to your selected text-model provider.
   API keys are currently stored in plaintext locally.
-- **Download:** [Apple Silicon alpha DMG](https://github.com/Etan330/Virgil/releases/tag/v1.1.1-alpha.1). Builds are ad-hoc signed, without a Developer ID or notarization.
+- **Download:** [Apple Silicon alpha DMG](https://github.com/Etan330/Virgil/releases/tag/v1.1.1-alpha.2). Builds are ad-hoc signed, without a Developer ID or notarization.
 
 ```bash
 npm ci
@@ -35,7 +35,7 @@ The current interface is primarily Chinese.
 Contributions and concrete usage feedback are welcome. If Virgil is useful to you,
 consider starring this repository so you can find it again.
 
-[Contributing](CONTRIBUTING.md) · [Report a bug](https://github.com/Etan330/Virgil/issues/new/choose)
+[Validation and limitations](docs/VALIDATION.md) · [Contributing](CONTRIBUTING.md) · [Report a bug](https://github.com/Etan330/Virgil/issues/new/choose)
 
 ---
 
@@ -65,11 +65,13 @@ macOS 桌面端的实时对话 Copilot。开会时它替你听着：把你和对
 
 卡片变绿打 ✓（Confirmed）只有两种情形：① 你把语义相同的问题问出了口；② 对方没等你问就主动给了答案。你手动点「不需要」会标为已忽略。**卡片不会自动过期**——没判定的会一直留在待处理里等你回看，不会凭空消失。
 
+真实模型的自动确认必须引用当前上下文中存在的语句，且说话人身份要符合确认理由。未知身份不能作为确认依据；程序仍无法保证模型对语义的判断正确。[查看实测与限制](docs/VALIDATION.md)。
+
 ---
 
 ## 二、下载与运行
 
-[下载 Apple Silicon 预览版 DMG](https://github.com/Etan330/Virgil/releases/tag/v1.1.1-alpha.1)，打开后把 Virgil 拖到 Applications。应用未做 Developer ID 签名与公证；如果 macOS 阻止启动，在系统设置 → 隐私与安全性中确认来源后允许打开。
+[下载 Apple Silicon 预览版 DMG](https://github.com/Etan330/Virgil/releases/tag/v1.1.1-alpha.2)，打开后把 Virgil 拖到 Applications。应用未做 Developer ID 签名与公证；如果 macOS 阻止启动，在系统设置 → 隐私与安全性中确认来源后允许打开。
 
 打开 Home 的「演示模式」即可免 Key 看交互。真实运行需要在 Settings 配置两个供应商 Key。
 

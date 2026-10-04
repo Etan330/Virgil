@@ -13,7 +13,9 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } fr
 import { join } from 'node:path';
 import { app } from 'electron';
 import { SessionController } from '../src/main/sessionController';
-import type { Settings } from '../src/shared/types';
+import { appendSegments, loadSession } from '../src/main/store/sessions';
+import type { AiInput, AiLike } from '../src/main/services/ai';
+import type { CopilotCard, Settings, TranscriptSegment } from '../src/shared/types';
 
 const SESSIONS = join(app.getPath('userData'), 'sessions');
 const CHUNK = Buffer.alloc(3200 * 2); // 200ms of 16k/16bit/mono
@@ -226,6 +228,32 @@ contextAccess.segments = [
 ];
 const recentContext = contextAccess.transcriptTail();
 ok('窗口裁剪不留下半句及丢失的说话人标签', recentContext === '[TA2] 最后一句必须保留完整。');
+
+console.log('\n[9] live analysis passes indexed context and persists the evidence reference');
+const evidenceController = new SessionController(() => undefined);
+const evidenceSession = await evidenceController.start(SETTINGS, true);
+evidenceController.pause();
+const evidenceAccess = evidenceController as unknown as {
+  segments: TranscriptSegment[];
+  cards: CopilotCard[];
+  ai: AiLike;
+  runAnalyze(): Promise<void>;
+};
+evidenceAccess.segments = [{ idx: 42, text: '这个需求由王莉负责。', speaker: 'TA', start_ms: 0, end_ms: 1000, definitive: true }];
+appendSegments(evidenceSession, evidenceAccess.segments);
+evidenceAccess.cards = [{ id: 'owner', type: 'need_to_ask', title: '确认负责人', context: '', suggested_text: '谁负责这个需求？', state: 'pending', created_at: new Date().toISOString(), resolved_at: null }];
+const capturedInputs: AiInput[] = [];
+evidenceAccess.ai = { analyze: async (input) => {
+  capturedInputs.push(input);
+  return { summary: [], newCards: [], resolutions: [{ card_id: 'owner', state: 'confirmed', reason: 'answered_by_counterpart', evidence_segment_idx: 42 }], expiredCardIds: [] };
+} };
+await evidenceAccess.runAnalyze();
+ok('真实编排向模型传入语句索引和说话人', capturedInputs[0]?.contextSegments?.[0]?.idx === 42 && capturedInputs[0]?.contextSegments?.[0]?.speaker === 'TA');
+const evidenceRecord = JSON.parse(readFileSync(join(SESSIONS, evidenceSession, 'session.json'), 'utf8'));
+ok('确认依据索引随卡片持久化', evidenceRecord.cards?.[0]?.resolve_segment_idx === 42);
+const evidenceHistory = loadSession(evidenceSession);
+ok('历史加载后的确认索引可找到对应原文', evidenceHistory?.transcript.find((segment) => segment.idx === evidenceHistory.cards[0]?.resolve_segment_idx)?.text === '这个需求由王莉负责。');
+await evidenceController.stop();
 
 console.log(failures === 0 ? '\nALL STATE CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);

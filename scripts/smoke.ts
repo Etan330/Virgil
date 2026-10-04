@@ -156,15 +156,27 @@ try {
     { name: 'unknown state stays pending', raw: { card_id: 'card-0', state: 'maybe', reason: 'user_asked' }, accepted: false },
     { name: 'unknown reason stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'unclear' }, accepted: false },
     { name: 'expired resolution stays pending', raw: { card_id: 'card-0', state: 'dismissed', reason: 'expired' }, accepted: false },
-    { name: 'explicit user question is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked' }, accepted: true },
-    { name: 'explicit counterpart answer is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart' }, accepted: true },
+    { name: 'missing evidence stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked' }, accepted: false },
+    { name: 'unknown speaker cannot confirm an answer even with known speakers elsewhere', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart', evidence_segment_idx: 1 }, accepted: false },
+    { name: 'user utterance cannot confirm counterpart answer', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart', evidence_segment_idx: 2 }, accepted: false },
+    { name: 'counterpart utterance cannot confirm user question', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: 3 }, accepted: false },
+    { name: 'nonexistent evidence stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: 999 }, accepted: false },
+    { name: 'string evidence identifier stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: '0' }, accepted: false },
+    { name: 'explicit user question is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked', evidence_segment_idx: 0 }, accepted: true },
+    { name: 'explicit counterpart answer is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart', evidence_segment_idx: 0 }, accepted: true },
   ];
   for (const test of cases) {
     globalThis.fetch = async () => new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({ summary: [], new_cards: [], resolutions: [test.raw] }) } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     const service = new DeepSeekAiService('test-placeholder', 'test-model', 'https://test.invalid');
-    const result = await service.analyze({ transcriptTail: '[我] 谁负责这个需求？', summarySoFar: [], pendingCards: pending });
+    const contextSegments = [
+      { idx: 0, speaker: test.name === 'explicit counterpart answer is accepted' ? 'TA' : '我', text: test.name === 'explicit counterpart answer is accepted' ? '这个需求由王莉负责。' : '谁负责这个需求？' },
+      { idx: 1, speaker: null, text: '[TA] 这个需求由王莉负责。' },
+      { idx: 2, speaker: '我', text: '谁负责这个需求？' },
+      { idx: 3, speaker: 'TA', text: '谁负责这个需求？' },
+    ];
+    const result = await service.analyze({ transcriptTail: '[我] 谁负责这个需求？', contextSegments, summarySoFar: [], pendingCards: pending });
     check(test.name, result.resolutions.length === (test.accepted ? 1 : 0));
   }
 } finally {

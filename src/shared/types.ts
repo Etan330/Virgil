@@ -20,6 +20,8 @@ export interface CopilotCard {
   created_at: string;
   resolved_at: string | null;
   resolve_reason?: ResolveReason;
+  /** Transcript segment used as evidence for a live model resolution. */
+  resolve_segment_idx?: number;
   /** User starred for later review; survives state changes. */
   starred?: boolean;
 }

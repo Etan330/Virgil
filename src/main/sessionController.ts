@@ -373,6 +373,7 @@ export class SessionController {
     try {
       const output = await this.ai.analyze({
         transcriptTail: this.transcriptTail(),
+        contextSegments: this.transcriptContext(),
         summarySoFar: this.summary,
         pendingCards: this.cards.filter((c) => c.state === 'pending'),
       });
@@ -409,6 +410,7 @@ export class SessionController {
         card.state = 'confirmed';
         card.resolved_at = now;
         card.resolve_reason = resolution.reason;
+        card.resolve_segment_idx = resolution.evidence_segment_idx;
       }
 
       this.lastAnalyzedCount = this.segments.length;
@@ -426,22 +428,26 @@ export class SessionController {
     }
   }
 
-  private transcriptTail(): string {
-    const lines: string[] = [];
+  private transcriptContext(): TranscriptSegment[] {
+    const segments: TranscriptSegment[] = [];
     let chars = 0;
     for (let i = this.segments.length - 1; i >= 0; i -= 1) {
       const segment = this.segments[i];
       const prefix = `[${segment.speaker ?? '未知'}] `;
-      let line = prefix + segment.text;
-      if (lines.length === 0 && line.length > TRANSCRIPT_WINDOW_CHARS) {
-        line = prefix + segment.text.slice(-(TRANSCRIPT_WINDOW_CHARS - prefix.length));
+      let text = segment.text;
+      if (segments.length === 0 && prefix.length + text.length > TRANSCRIPT_WINDOW_CHARS) {
+        text = text.slice(-(TRANSCRIPT_WINDOW_CHARS - prefix.length));
       }
-      const added = line.length + (lines.length > 0 ? 1 : 0);
+      const added = prefix.length + text.length + (segments.length > 0 ? 1 : 0);
       if (chars + added > TRANSCRIPT_WINDOW_CHARS) break;
-      lines.unshift(line);
+      segments.unshift({ ...segment, text });
       chars += added;
     }
-    return lines.join('\n');
+    return segments;
+  }
+
+  private transcriptTail(): string {
+    return this.transcriptContext().map((segment) => `[${segment.speaker ?? '未知'}] ${segment.text}`).join('\n');
   }
 
   feedPcm(pcm: Buffer): void {
