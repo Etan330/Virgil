@@ -206,5 +206,26 @@ const grownMb = (process.memoryUsage().external - before) / 1024 / 1024;
 ok('喂 1 小时音频后额外内存 < 60MB', grownMb < 60, `实际 +${grownMb.toFixed(1)}MB`);
 void c6.stop();
 
+console.log('\n[8] AI context preserves speaker identity and whole recent utterances');
+const contextController = new SessionController(() => undefined);
+const contextAccess = contextController as unknown as {
+  segments: Array<{ text: string; speaker: string | null }>;
+  transcriptTail(): string;
+};
+contextAccess.segments = [{ text: '谁负责这个需求？', speaker: '我' }];
+const userQuestionContext = contextAccess.transcriptTail();
+contextAccess.segments = [{ text: '谁负责这个需求？', speaker: 'TA' }];
+const counterpartQuestionContext = contextAccess.transcriptTail();
+ok('同一句问题由不同人说出时模型输入不同', userQuestionContext !== counterpartQuestionContext);
+ok('用户和对方标签保留到模型输入', userQuestionContext.includes('[我]') && counterpartQuestionContext.includes('[TA]'));
+contextAccess.segments = [{ text: '下周确认。', speaker: null }];
+ok('未知说话人不冒充用户或对方', contextAccess.transcriptTail().includes('[未知]'));
+contextAccess.segments = [
+  { text: '旧'.repeat(7990), speaker: '我' },
+  { text: '最后一句必须保留完整。', speaker: 'TA2' },
+];
+const recentContext = contextAccess.transcriptTail();
+ok('窗口裁剪不留下半句及丢失的说话人标签', recentContext === '[TA2] 最后一句必须保留完整。');
+
 console.log(failures === 0 ? '\nALL STATE CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);

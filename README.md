@@ -1,5 +1,7 @@
 # Virgil
 
+[![CI](https://github.com/Etan330/Virgil/actions/workflows/ci.yml/badge.svg)](https://github.com/Etan330/Virgil/actions/workflows/ci.yml)
+
 **A real-time conversation copilot for macOS: catch the questions you still need to ask.**
 
 Virgil transcribes conversations, surfaces follow-up questions and suggested replies,
@@ -15,10 +17,11 @@ alignment: scope, owners, deadlines, budgets, and acceptance criteria.
 - **Data:** recordings and history are stored on your Mac. Live audio is sent to
   Volcengine, and transcript context is sent to your selected text-model provider.
   API keys are currently stored in plaintext locally.
-- **Installation:** source setup below. Builds are unsigned and not notarized.
+- **Download:** [Apple Silicon alpha DMG](https://github.com/Etan330/Virgil/releases/tag/v1.1.1-alpha.1). Builds are ad-hoc signed, without a Developer ID or notarization.
 
 ```bash
 npm ci
+node node_modules/electron/install.js
 npm run dev
 ```
 
@@ -60,18 +63,26 @@ macOS 桌面端的实时对话 Copilot。开会时它替你听着：把你和对
 
 ---
 
-## 二、跑起来
+## 二、下载与运行
+
+[下载 Apple Silicon 预览版 DMG](https://github.com/Etan330/Virgil/releases/tag/v1.1.1-alpha.1)，打开后把 Virgil 拖到 Applications。应用未做 Developer ID 签名与公证；如果 macOS 阻止启动，在系统设置 → 隐私与安全性中确认来源后允许打开。
+
+打开 Home 的「演示模式」即可免 Key 看交互。真实运行需要在 Settings 配置两个供应商 Key。
+
+开发者从源码运行：
 
 ```bash
 npm install              # 装依赖（含 Electron 二进制）
 npm run dev              # 开发模式，热更新
 npm run build            # 构建到 out/
 npm run typecheck        # 类型检查
-npm run smoke            # 离线冒烟：火山二进制帧逐字节校验 + 演示 Copilot 链路（22 项）
-npm run check:state      # 会话状态机回归测试（无头，不碰真实数据，20 项）
-npm run setup:asr        # 下载本地声纹模型到 vendor/asr/speaker
+npm run smoke            # 离线冒烟：火山二进制帧逐字节校验 + 演示 Copilot 链路
+npm run check:state      # 会话状态机回归测试（无头，不碰真实数据）
+npm run setup:asr        # 下载本地声纹模型到 vendor/asr/speaker（打包前必须执行）
 bash scripts/package-mac.sh   # 打包：产出 release/Virgil.app + release/Virgil-*.dmg
 ```
+
+打包需要 Apple Silicon Mac，并须先运行 `npm run setup:asr` 下载声纹模型。开发与演示模式不要求这个模型。
 
 打包完成会得到两样东西：
 
@@ -103,9 +114,11 @@ node scripts/e2e-check.mjs
 | 环节 | 供应商 | 需要 Key | 可选模型 |
 |---|---|---|---|
 | 语音识别 | 火山引擎 · 豆包流式 2.0（bigmodel） | 是 | `volc.seedasr.sauc.duration`（小时计费，已预填） |
-| 文字模型 | **智谱 GLM（出厂默认）** | 是 | `glm-4.7-flash`（免费，默认）/ `glm-4-flash`（免费） |
+| 文字模型 | **智谱 GLM（出厂默认）** | 是 | `glm-4.7-flash`（默认）/ `glm-4-flash` |
 | 文字模型 | DeepSeek | 是 | `deepseek-chat` / `deepseek-reasoner` |
 | 文字模型 | 硅基流动 | 是 | `Qwen2.5-7B-Instruct` / `Qwen3-8B` |
+
+各供应商的可用模型、额度和费用以其当前规则为准。
 
 每家的 Key 分开保存，来回切换不会丢。填完点 **Test** 验证，再点 **Save**。
 
@@ -170,4 +183,11 @@ src/
 - **声纹目前只登记「我」一个人**：其余人靠声音聚类成 TA / TA2 / TA3，不认名字。
 - **录音体积随会话线性增长**，没有自动清理策略。
 - 火山 `bigmodel_async` 不支持 `language` 参数，中英文自动识别。
-- 演示模式是固定脚本回放，不代表真实识别效果。
+- 演示模式是固定脚本回放，转录、建议和确认均预设，不代表真实识别或模型效果。
+- 说话人标签可能误识别；没有登记声纹或语句过短时，停顿启发式不等于可靠说话人识别。
+- AI 分析使用最近约 8,000 字的对话上下文；早期决定可能不出现在最新摘要中。历史转录保留，可用于回查。
+- 自动卡片判定是模型建议，应结合原话检查；「你已问出」不等于「对方已回答」。
+
+## License
+
+Virgil source code is available under the [MIT license](LICENSE). Third-party dependencies and downloaded models retain their own licenses.

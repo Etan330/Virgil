@@ -116,13 +116,13 @@ export const TEXT_PROVIDERS: TextProviderPreset[] = [
   {
     id: 'glm',
     label: '智谱 GLM',
-    note: 'GLM-4 系列 Flash 永久免费，中文好。',
+    note: 'GLM-4 系列 Flash，中文好；计费以供应商当前规则为准。',
     needsKey: true,
     offline: false,
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
     models: [
-      { id: 'glm-4.7-flash', label: 'glm-4.7-flash · 免费 · 200K' },
-      { id: 'glm-4-flash', label: 'glm-4-flash · 免费 · 128K' },
+      { id: 'glm-4.7-flash', label: 'glm-4.7-flash · 默认' },
+      { id: 'glm-4-flash', label: 'glm-4-flash' },
     ],
     defaultModel: 'glm-4.7-flash',
   },

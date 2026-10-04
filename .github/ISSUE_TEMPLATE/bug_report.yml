@@ -1,0 +1,23 @@
+name: Bug report / 问题反馈
+description: Report a reproducible problem without private conversation data.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: input
+    id: environment
+    attributes:
+      label: App version, macOS version, and Mac chip
+      placeholder: "Virgil 1.1.0, macOS 15, Apple M-series"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce, expected behavior, and actual behavior
+      description: Use fabricated examples. Do not paste API keys or private transcripts.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or redacted error messages

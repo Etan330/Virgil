@@ -427,8 +427,21 @@ export class SessionController {
   }
 
   private transcriptTail(): string {
-    const joined = this.segments.map((s) => s.text).join('\n');
-    return joined.slice(-TRANSCRIPT_WINDOW_CHARS);
+    const lines: string[] = [];
+    let chars = 0;
+    for (let i = this.segments.length - 1; i >= 0; i -= 1) {
+      const segment = this.segments[i];
+      const prefix = `[${segment.speaker ?? '未知'}] `;
+      let line = prefix + segment.text;
+      if (lines.length === 0 && line.length > TRANSCRIPT_WINDOW_CHARS) {
+        line = prefix + segment.text.slice(-(TRANSCRIPT_WINDOW_CHARS - prefix.length));
+      }
+      const added = line.length + (lines.length > 0 ? 1 : 0);
+      if (chars + added > TRANSCRIPT_WINDOW_CHARS) break;
+      lines.unshift(line);
+      chars += added;
+    }
+    return lines.join('\n');
   }
 
   feedPcm(pcm: Buffer): void {

@@ -36,6 +36,11 @@ mkdir -p "$APP/Contents/Resources/node_modules"
 cp "$STAGE/app.asar" "$APP/Contents/Resources/app.asar"
 cp -R "$ROOT/vendor/asr" "$APP/Contents/Resources/vendor/asr"
 cp "$ROOT/assets/icon.icns" "$APP/Contents/Resources/icon.icns"
+# Retain source, runtime, native-library, and model license notices.
+cp "$ROOT/LICENSE" "$APP/Contents/Resources/LICENSE"
+cp "$ROOT/THIRD_PARTY_NOTICES.md" "$APP/Contents/Resources/THIRD_PARTY_NOTICES.md"
+cp -R "$ROOT/licenses" "$APP/Contents/Resources/licenses"
+cp "$ROOT/node_modules/electron/dist/LICENSES.chromium.html" "$APP/Contents/Resources/licenses/Electron-LICENSES.chromium.html"
 # sherpa-onnx-node 的原生库不能进 asar，放真实的 node_modules
 cp -R "$ROOT/node_modules/sherpa-onnx-node" "$APP/Contents/Resources/node_modules/"
 cp -R "$ROOT/node_modules/sherpa-onnx-darwin-arm64" "$APP/Contents/Resources/node_modules/"

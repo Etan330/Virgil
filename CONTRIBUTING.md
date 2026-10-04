@@ -7,6 +7,7 @@ For larger changes, open an issue first so we can discuss the intended behavior.
 
 ```bash
 npm ci
+node node_modules/electron/install.js
 npm run dev
 ```
 

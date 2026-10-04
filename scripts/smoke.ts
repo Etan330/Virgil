@@ -11,7 +11,7 @@ import {
   parseAsrResult,
   parseServerFrame,
 } from '../src/main/services/volcProtocol';
-import { MockAiService } from '../src/main/services/ai';
+import { DeepSeekAiService, MockAiService } from '../src/main/services/ai';
 import { MockAsrDriver } from '../src/main/services/mockAsr';
 import { DEMO_SCRIPT } from '../src/main/services/demoScript';
 import type { CopilotCard } from '../src/shared/types';
@@ -147,6 +147,29 @@ const resolution = third.resolutions.find((r) => r.card_id === askCard?.id);
 check('pending card resolved to confirmed', resolution?.state === 'confirmed', JSON.stringify(third.resolutions));
 check('resolve reason is user_asked', resolution?.reason === 'user_asked');
 check('summary updated', third.summary.length > 0);
+
+console.log('\n[7] real AI parser rejects incomplete or unsupported card resolutions');
+const originalFetch = globalThis.fetch;
+try {
+  const cases = [
+    { name: 'missing state and reason stay pending', raw: { card_id: 'card-0' }, accepted: false },
+    { name: 'unknown state stays pending', raw: { card_id: 'card-0', state: 'maybe', reason: 'user_asked' }, accepted: false },
+    { name: 'unknown reason stays pending', raw: { card_id: 'card-0', state: 'confirmed', reason: 'unclear' }, accepted: false },
+    { name: 'expired resolution stays pending', raw: { card_id: 'card-0', state: 'dismissed', reason: 'expired' }, accepted: false },
+    { name: 'explicit user question is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'user_asked' }, accepted: true },
+    { name: 'explicit counterpart answer is accepted', raw: { card_id: 'card-0', state: 'confirmed', reason: 'answered_by_counterpart' }, accepted: true },
+  ];
+  for (const test of cases) {
+    globalThis.fetch = async () => new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({ summary: [], new_cards: [], resolutions: [test.raw] }) } }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const service = new DeepSeekAiService('test-placeholder', 'test-model', 'https://test.invalid');
+    const result = await service.analyze({ transcriptTail: '[我] 谁负责这个需求？', summarySoFar: [], pendingCards: pending });
+    check(test.name, result.resolutions.length === (test.accepted ? 1 : 0));
+  }
+} finally {
+  globalThis.fetch = originalFetch;
+}
 
 console.log(failures === 0 ? '\nALL SMOKE CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
 process.exit(failures === 0 ? 0 : 1);

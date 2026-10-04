@@ -1,4 +1,4 @@
-node_modules/
+/node_modules
 out/
 dist/
 release/
@@ -18,3 +18,10 @@ electron.vite.config.*.mjs
 sessions/
 settings.json
 voiceprint.json
+
+# Maintainer-only coordination and unpublished launch drafts
+PROJECT_STATE.md
+.launch/
+
+# Generated Electron runtime notices are copied into the app at packaging time
+licenses/Electron-LICENSES.chromium.html
