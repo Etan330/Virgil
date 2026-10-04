@@ -1,6 +1,6 @@
 # Validation records
 
-These are small maintainer-run checks on 2026-10-04, not an accuracy benchmark.
+These are small AI-agent-run checks performed on behalf of the maintainer on 2026-10-04, not an accuracy benchmark.
 The screenshot and built-in demo use preset transcripts, cards, and resolutions.
 They demonstrate the interface only.
 
@@ -9,7 +9,7 @@ They demonstrate the interface only.
 The final requirements prompt was checked against 12 fabricated Chinese scenarios
 using the real DeepSeek `deepseek-chat` service. Eight scenarios met the checks
 with the previous source. In one complete final candidate batch, all 12 automated
-checks passed, but independent semantic review found only 11 scenarios met the
+checks passed, but an independent AI-assisted semantic review found only 11 scenarios met the
 intended expectation. This is a small behavior check, not a model accuracy estimate.
 
 | Scenario | Checked behavior | Previous source | Final candidate |
@@ -43,7 +43,7 @@ not prove semantic relevance or true speaker identity. Outputs can vary between 
 
 The design-request reply began with “可以，不过先确认下…”. Although it then
 asked for clarification, “可以” may express acceptance before the user agreed.
-The automated lexical check missed this. The original output and separate human
+The automated lexical check missed this. The original output and separate AI-assisted semantic
 review are retained in the JSON record; prompt instructions do not guarantee that
 every suggestion avoids an unintended commitment.
 

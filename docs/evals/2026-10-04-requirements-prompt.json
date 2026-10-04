@@ -442,7 +442,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -471,7 +471,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -502,7 +502,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -541,7 +541,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -575,7 +575,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -609,7 +609,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -639,7 +639,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -684,7 +684,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -722,7 +722,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -776,7 +776,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       },
@@ -812,7 +812,7 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": false,
           "note": "The output starts with 可以, which can express acceptance before the user agreed. The automated lexical check missed this soft commitment. Original output is retained."
         }
@@ -859,16 +859,16 @@
           "expiredCardIds": []
         },
         "automatedPassed": true,
-        "humanReview": {
+        "semanticReview": {
           "metExpectation": true
         }
       }
     ],
-    "humanReviewSummary": {
+    "semanticReviewSummary": {
       "metExpectation": 11,
       "total": 12,
       "automatedChecksPassed": 12,
-      "limitation": "One maintainer review of fabricated examples; not an accuracy benchmark."
+      "limitation": "Independent AI-assisted semantic review of fabricated examples; no human review is claimed. Not an accuracy benchmark."
     }
   }
 }
