@@ -8,6 +8,10 @@ Virgil transcribes conversations, surfaces follow-up questions and suggested rep
 and keeps searchable session history with audio playback. It focuses on requirements
 alignment: scope, owners, deadlines, budgets, and acceptance criteria.
 
+![Scripted demo: conversation, follow-up cards, and processed states](docs/images/scripted-demo.png)
+
+*Scripted demo: transcript, suggestions, and resolutions are preset. This screenshot shows the interface, not live AI accuracy.*
+
 - **Try without API keys:** the built-in demo plays a scripted conversation. Its cards
   are scripted too; it demonstrates the interface, not live model accuracy.
 - **Run real conversations:** bring a Volcengine speech API key and a supported text-model

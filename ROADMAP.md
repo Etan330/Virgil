@@ -7,8 +7,9 @@ This list describes intended work, not shipped features or delivery promises.
 ## Release foundation
 
 - [x] Public source repository with an MIT license and contribution instructions.
-- [ ] Apple Silicon download, installation instructions, and reproducible checks.
-- [ ] Clearly labeled scripted demo screenshots and a consented real-session example.
+- [x] Apple Silicon alpha download, installation instructions, and reproducible checks.
+- [x] Clearly labeled scripted demo screenshot.
+- [ ] Consented real-session example.
 
 ## Next product experiments
 
